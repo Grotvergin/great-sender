@@ -16,6 +16,7 @@ def TextAccept(message: telebot.types.Message) -> None:
     Stamp(f'User {message.from_user.username} sent {message.content_type}', 'i')
     if message.content_type == 'text':
         BOT.send_message(message.from_user.id, "Отправь мне любое медиа, а я скажу его ID на серверах Telegram!")
+        BOT.send_message(message.from_user.id, f'ID чата: {message.chat.id}, ID сообщения: {message.message_id}')
     elif message.content_type == 'voice':
         BOT.send_message(message.from_user.id, message.voice.file_id)
     elif message.content_type == 'photo':
@@ -52,9 +53,17 @@ def AnnualCheck():
                             if row[COL_LINK_URL] != '-' and row[COL_LINK_TEXT] != '-':
                                 markup = telebot.types.InlineKeyboardMarkup()
                                 markup.add(telebot.types.InlineKeyboardButton(row[COL_LINK_TEXT], row[COL_LINK_URL]))
-                                BOT.send_message(id_channel, row[COL_MSG], reply_markup=markup)
+                                if '|' in row[COL_MSG]:
+                                    chat_id, num = row[COL_MSG].split('|')
+                                    BOT.forward_message(id_channel, chat_id, num)
+                                else:
+                                    BOT.send_message(id_channel, row[COL_MSG])
                             else:
-                                BOT.send_message(id_channel, row[COL_MSG])
+                                if '|' in row[COL_MSG]:
+                                    chat_id, num = row[COL_MSG].split('|')
+                                    BOT.forward_message(id_channel, chat_id, num)
+                                else:
+                                    BOT.send_message(id_channel, row[COL_MSG])
         except Exception as e:
             Stamp(f'IN AnnualCheck: {e}', 'e')
             Stamp(traceback.format_exc(), 'e')
