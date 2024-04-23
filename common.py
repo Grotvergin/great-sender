@@ -23,7 +23,7 @@ random.seed()
 CREDS = service_account.Credentials.from_service_account_file('keys.json', scopes=['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive.readonly'])
 
 
-def UploadRow(start: str, finish: str, data: list[str], sheet_name: str, sheet_id: str, service: googleapiclient.discovery.Resource) -> None:
+def UploadRow(start: str, finish: str, data: list, sheet_name: str, sheet_id: str, service: googleapiclient.discovery.Resource) -> None:
     Stamp(f'Trying to upload data to sheet {sheet_name}', 'i')
     try:
         res = service.spreadsheets().values().update(spreadsheetId=sheet_id,
