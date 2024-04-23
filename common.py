@@ -56,21 +56,20 @@ def Sleep(timer: int, ratio: float = 0.0) -> None:
 
 def Stamp(message: str, level: str) -> None:
     time_stamp = datetime.now().strftime('[%m-%d|%H:%M:%S]')
-    match level:
-        case 'i':
-            print(Fore.LIGHTBLUE_EX + time_stamp + '[INF] ' + message + '.' + Style.RESET_ALL)
-        case 'w':
-            print(Fore.LIGHTMAGENTA_EX + time_stamp + '[WAR] ' + message + '!' + Style.RESET_ALL)
-        case 's':
-            print(Fore.LIGHTGREEN_EX + time_stamp + '[SUC] ' + message + '.' + Style.RESET_ALL)
-        case 'e':
-            print(Fore.RED + time_stamp + '[ERR] ' + message + '!!!' + Style.RESET_ALL)
-        case 'l':
-            print(Fore.WHITE + time_stamp + '[SLE] ' + message + '...' + Style.RESET_ALL)
-        case 'b':
-            print(Fore.LIGHTYELLOW_EX + time_stamp + '[BOR] ' + message + '.' + Style.RESET_ALL)
-        case _:
-            print(Fore.WHITE + time_stamp + '[UNK] ' + message + '?' + Style.RESET_ALL)
+    if level == 'i':
+        print(Fore.LIGHTBLUE_EX + time_stamp + '[INF] ' + message + '.' + Style.RESET_ALL)
+    elif level == 'w':
+        print(Fore.LIGHTMAGENTA_EX + time_stamp + '[WAR] ' + message + '!' + Style.RESET_ALL)
+    elif level == 's':
+        print(Fore.LIGHTGREEN_EX + time_stamp + '[SUC] ' + message + '.' + Style.RESET_ALL)
+    elif level == 'e':
+        print(Fore.RED + time_stamp + '[ERR] ' + message + '!!!' + Style.RESET_ALL)
+    elif level == 'l':
+        print(Fore.WHITE + time_stamp + '[SLE] ' + message + '...' + Style.RESET_ALL)
+    elif level == 'b':
+        print(Fore.LIGHTYELLOW_EX + time_stamp + '[BOR] ' + message + '.' + Style.RESET_ALL)
+    else:
+        print(Fore.WHITE + time_stamp + '[UNK] ' + message + '?' + Style.RESET_ALL)
 
 
 def GetSector(start: str, finish: str, service: googleapiclient.discovery.Resource, sheet_name: str, sheet_id: str) -> list:
