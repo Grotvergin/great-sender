@@ -36,7 +36,7 @@ def AnnualCheck():
             for row in data:
                 if cur_time == row[0] + ' ' + row[1]:
                     ids = row[COL_IDS].split(',')
-                    Stamp(f'Sending message to {'/'.join(ids)}', 'i')
+                    Stamp(f"Sending message to {'/'.join(ids)}", 'i')
                     for id_channel in ids:
                         if row[COL_PHOTO] != '-':
                             BOT.send_photo(id_channel, row[COL_PHOTO])
