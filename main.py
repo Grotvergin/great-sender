@@ -41,9 +41,9 @@ def AnnualCheck():
             sheets = SERVICE.spreadsheets().get(spreadsheetId=SHEET_ID, fields='sheets.properties.title').execute()
             sheets = [sheet['properties']['title'] for sheet in sheets['sheets'] if sheet['properties']['title'][0] in ('@', '-')]
             cur_time = datetime.now().strftime('%d.%m.%Y %H:%M')
-            for id_channel in sheets:
-                data = GetSector(SCAN[0], SCAN[1], SERVICE, id_channel, SHEET_ID)
-                for row in data:
+            data = GetManySectors(SCAN[0], SCAN[1], SERVICE, sheets, SHEET_ID)
+            for id_channel, value in data.items():
+                for row in value['values']:
                     caption = None
                     markup = None
                     if cur_time == row[0] + ' ' + row[1]:

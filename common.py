@@ -86,3 +86,26 @@ def GetSector(start: str, finish: str, service: googleapiclient.discovery.Resour
         else:
             Stamp(f'Found {len(res)} rows from sector from {start} to {finish} sheet {sheet_name}', 's')
     return res
+
+
+def GetManySectors(start: str, finish: str, service: googleapiclient.discovery.Resource, sheet_names: list, sheet_id: str) -> dict:
+    Stamp(f'Trying to get sector from {start} to {finish} from sheets {sheet_names}', 'i')
+    sectors_data = {}
+    ranges = [f'{sheet_name}!{start}:{finish}' for sheet_name in sheet_names]
+    try:
+        res = service.spreadsheets().values().batchGet(spreadsheetId=sheet_id, ranges=ranges).execute().get('valueRanges', [])
+    except (TimeoutError, httplib2.error.ServerNotFoundError, gaierror, HttpError, SSLEOFError) as err:
+        Stamp(f'Status = {err} on getting sectors from sheets', 'e')
+        Sleep(SLEEP_GOOGLE)
+        sectors_data = GetManySectors(start, finish, service, sheet_names, sheet_id)
+    else:
+        if not res:
+            Stamp(f'No elements found in sectors from {start} to {finish} from sheets {sheet_names}', 'w')
+        else:
+            for i, data in enumerate(res):
+                if data:
+                    Stamp(f'Found {len(data)} rows from sector from {start} to {finish} sheet {sheet_names[i]}', 's')
+                    sectors_data[sheet_names[i]] = data
+                else:
+                    Stamp(f'No elements in sector from {start} to {finish} sheet {sheet_names[i]} found', 'w')
+    return sectors_data
