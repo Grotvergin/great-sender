@@ -14,7 +14,7 @@ def Main() -> None:
             Stamp(traceback.format_exc(), 'e')
 
 
-@BOT.message_handler(content_types=['text', 'voice', 'photo', 'video', 'video_note', 'sticker', 'animation'])
+@BOT.message_handler(content_types=['text', 'voice', 'photo', 'video', 'video_note', 'sticker', 'animation', 'document'])
 def TextAccept(message: telebot.types.Message) -> None:
     Stamp(f'User {message.from_user.username} sent {message.content_type}', 'i')
     users = GetSector('A2', 'A100', SERVICE, 'Пользователи', SHEET_ID)
@@ -22,7 +22,7 @@ def TextAccept(message: telebot.types.Message) -> None:
     if message.from_user.username in users:
         if message.content_type == 'text':
             BOT.send_message(message.from_user.id, "Send me any media and get its ID on Telegram servers!")
-            BOT.send_message(message.from_user.id, f'Chat ID: {message.chat.id}, Message ID: {message.message_id}')
+            BOT.send_message(message.from_user.id, f'Chat ID: {message.chat.id}, message ID: {message.message_id}')
         elif message.content_type == 'voice':
             BOT.send_message(message.from_user.id, message.voice.file_id)
         elif message.content_type == 'photo':
@@ -35,6 +35,8 @@ def TextAccept(message: telebot.types.Message) -> None:
             BOT.send_message(message.from_user.id, message.sticker.file_id)
         elif message.content_type == 'animation':
             BOT.send_message(message.from_user.id, message.animation.file_id)
+        elif message.content_type == 'document':
+            BOT.send_message(message.from_user.id, message.document.file_id)
     else:
         BOT.send_message(message.from_user.id, 'Access denied!')
 
@@ -73,7 +75,17 @@ def AnnualCheck():
                                         media.append(telebot.types.InputMediaPhoto(media=photo, parse_mode='Markdown'))
                                 BOT.send_media_group(id_channel, media)
                         elif row[COL_VIDEO] != '-':
-                            BOT.send_video(id_channel, row[COL_VIDEO], caption=caption, reply_markup=markup, parse_mode='Markdown')
+                            videos = row[COL_VIDEO].split(',')
+                            if len(videos) == 1:
+                                BOT.send_video(id_channel, row[COL_VIDEO], caption=caption, reply_markup=markup, parse_mode='Markdown')
+                            else:
+                                media = []
+                                for i, video in enumerate(videos):
+                                    if i == 0:
+                                        media.append(telebot.types.InputMediaPhoto(media=video, caption=caption, parse_mode='Markdown'))
+                                    else:
+                                        media.append(telebot.types.InputMediaPhoto(media=video, parse_mode='Markdown'))
+                                BOT.send_media_group(id_channel, media)
                         elif row[COL_CIRCLE] != '-':
                             BOT.send_video_note(id_channel, row[COL_CIRCLE], reply_markup=markup, parse_mode='Markdown')
                         elif row[COL_VOICE] != '-':
@@ -82,6 +94,8 @@ def AnnualCheck():
                             BOT.send_sticker(id_channel, row[COL_STICKER])
                         elif row[COL_ANIM] != '-':
                             BOT.send_animation(id_channel, row[COL_ANIM], caption=caption, reply_markup=markup, parse_mode='Markdown')
+                        elif row[COL_DOC] != '-':
+                            BOT.send_document(id_channel, row[COL_DOC], caption=caption, reply_markup=markup)
                         elif row[COL_MSG] != '-':
                             BOT.send_message(id_channel, caption, reply_markup=markup, parse_mode='Markdown')
                         BOT.send_message(LOG_ID, f'Sent to {id_channel}')
