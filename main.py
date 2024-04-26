@@ -1,3 +1,5 @@
+import telebot.types
+
 from source import *
 
 
@@ -12,7 +14,7 @@ def Main() -> None:
             Stamp(traceback.format_exc(), 'e')
 
 
-@BOT.message_handler(content_types=['text', 'voice', 'photo', 'video', 'video_note', 'sticker', 'gif'])
+@BOT.message_handler(content_types=['text', 'voice', 'photo', 'video', 'video_note', 'sticker', 'animation'])
 def TextAccept(message: telebot.types.Message) -> None:
     Stamp(f'User {message.from_user.username} sent {message.content_type}', 'i')
     users = GetSector('A2', 'A100', SERVICE, 'Пользователи', SHEET_ID)
@@ -31,7 +33,7 @@ def TextAccept(message: telebot.types.Message) -> None:
             BOT.send_message(message.from_user.id, message.video_note.file_id)
         elif message.content_type == 'sticker':
             BOT.send_message(message.from_user.id, message.sticker.file_id)
-        elif message.content_type == 'gif':
+        elif message.content_type == 'animation':
             BOT.send_message(message.from_user.id, message.animation.file_id)
     else:
         BOT.send_message(message.from_user.id, 'Access denied!')
@@ -53,24 +55,36 @@ def AnnualCheck():
                         if row[COL_MSG] != '-':
                             caption = row[COL_MSG]
                         if row[COL_LINK_URL] != '-' and row[COL_LINK_TEXT] != '-':
+                            links = row[COL_LINK_URL].split(',')
+                            texts = row[COL_LINK_TEXT].split(',')
                             markup = telebot.types.InlineKeyboardMarkup()
-                            markup.add(telebot.types.InlineKeyboardButton(row[COL_LINK_TEXT], row[COL_LINK_URL]))
+                            for link, text in zip(links, texts):
+                                markup.add(telebot.types.InlineKeyboardButton(url=link, text=text))
                         if row[COL_PHOTO] != '-':
-                            BOT.send_photo(id_channel, row[COL_PHOTO], caption=caption, reply_markup=markup)
+                            photos = row[COL_PHOTO].split(',')
+                            if len(photos) == 1:
+                                BOT.send_photo(id_channel, row[COL_PHOTO], caption=caption, reply_markup=markup, parse_mode='Markdown')
+                            else:
+                                media = []
+                                for i, photo in enumerate(photos):
+                                    if i == 0:
+                                        media.append(telebot.types.InputMediaPhoto(media=photo, caption=caption, parse_mode='Markdown'))
+                                    else:
+                                        media.append(telebot.types.InputMediaPhoto(media=photo, parse_mode='Markdown'))
+                                BOT.send_media_group(id_channel, media)
                         elif row[COL_VIDEO] != '-':
-                            BOT.send_video(id_channel, row[COL_VIDEO], caption=caption, reply_markup=markup)
+                            BOT.send_video(id_channel, row[COL_VIDEO], caption=caption, reply_markup=markup, parse_mode='Markdown')
                         elif row[COL_CIRCLE] != '-':
-                            BOT.send_video_note(id_channel, row[COL_CIRCLE], reply_markup=markup)
+                            BOT.send_video_note(id_channel, row[COL_CIRCLE], reply_markup=markup, parse_mode='Markdown')
                         elif row[COL_VOICE] != '-':
-                            BOT.send_voice(id_channel, row[COL_VOICE], caption=caption, reply_markup=markup)
+                            BOT.send_voice(id_channel, row[COL_VOICE], caption=caption, reply_markup=markup, parse_mode='Markdown')
                         elif row[COL_STICKER] != '-':
                             BOT.send_sticker(id_channel, row[COL_STICKER])
                         elif row[COL_ANIM] != '-':
-                            BOT.send_animation(id_channel, row[COL_ANIM], caption=caption, reply_markup=markup)
+                            BOT.send_animation(id_channel, row[COL_ANIM], caption=caption, reply_markup=markup, parse_mode='Markdown')
                         elif row[COL_MSG] != '-':
-                            BOT.send_message(id_channel, caption, reply_markup=markup)
+                            BOT.send_message(id_channel, caption, reply_markup=markup, parse_mode='Markdown')
                         BOT.send_message(LOG_ID, f'Sent to {id_channel}')
-                        BOT.send_animation()
                         break
         except Exception as e:
             Stamp(f'In AnnualCheck: {e}', 'e')
