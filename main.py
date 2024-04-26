@@ -12,7 +12,7 @@ def Main() -> None:
             Stamp(traceback.format_exc(), 'e')
 
 
-@BOT.message_handler(content_types=['text', 'voice', 'photo', 'video', 'video_note', 'sticker'])
+@BOT.message_handler(content_types=['text', 'voice', 'photo', 'video', 'video_note', 'sticker', 'gif'])
 def TextAccept(message: telebot.types.Message) -> None:
     Stamp(f'User {message.from_user.username} sent {message.content_type}', 'i')
     users = GetSector('A2', 'A100', SERVICE, 'Пользователи', SHEET_ID)
@@ -31,6 +31,8 @@ def TextAccept(message: telebot.types.Message) -> None:
             BOT.send_message(message.from_user.id, message.video_note.file_id)
         elif message.content_type == 'sticker':
             BOT.send_message(message.from_user.id, message.sticker.file_id)
+        elif message.content_type == 'gif':
+            BOT.send_message(message.from_user.id, message.animation.file_id)
     else:
         BOT.send_message(message.from_user.id, 'Access denied!')
 
@@ -63,9 +65,12 @@ def AnnualCheck():
                             BOT.send_voice(id_channel, row[COL_VOICE], caption=caption, reply_markup=markup)
                         elif row[COL_STICKER] != '-':
                             BOT.send_sticker(id_channel, row[COL_STICKER])
+                        elif row[COL_ANIM] != '-':
+                            BOT.send_animation(id_channel, row[COL_ANIM], caption=caption, reply_markup=markup)
                         elif row[COL_MSG] != '-':
                             BOT.send_message(id_channel, caption, reply_markup=markup)
                         BOT.send_message(LOG_ID, f'Sent to {id_channel}')
+                        BOT.send_animation()
                         break
         except Exception as e:
             Stamp(f'In AnnualCheck: {e}', 'e')
