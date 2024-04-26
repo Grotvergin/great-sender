@@ -87,7 +87,7 @@ def AnnualCheck():
                                         media.append(telebot.types.InputMediaPhoto(media=video, parse_mode='Markdown'))
                                 BOT.send_media_group(id_channel, media)
                         elif row[COL_CIRCLE] != '-':
-                            BOT.send_video_note(id_channel, row[COL_CIRCLE], reply_markup=markup, parse_mode='Markdown')
+                            BOT.send_video_note(id_channel, row[COL_CIRCLE], reply_markup=markup)
                         elif row[COL_VOICE] != '-':
                             BOT.send_voice(id_channel, row[COL_VOICE], caption=caption, reply_markup=markup, parse_mode='Markdown')
                         elif row[COL_STICKER] != '-':
